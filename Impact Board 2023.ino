@@ -1,3 +1,6 @@
+//  Written for MakeShift 4039's Impact Presentation Board 2023
+//  Code devloped by Vincent Lombardi, Blake McFadden, & Angela Tollis
+
 //Import libraries
 #include <Adafruit_GFX.h>
 #include <Adafruit_NeoMatrix.h>
