@@ -56,6 +56,7 @@ uint32_t blue = node4.Color(0, 0, 255, 0);
 uint32_t indigo = node4.Color(75, 0, 130, 0);
 uint32_t violet = node4.Color(148, 0, 211, 0);
 uint32_t white = node4.Color(0, 0, 0, 255);
+uint32_t blank = node4.Color(0, 0, 0, 0);
 
 /* Button Stuff*/
 volatile bool should_advance = false;
@@ -86,6 +87,21 @@ void advance_change() {
       should_advance = true;
     }  
     time_pressed = millis();    
+}
+
+
+//setup for rainbow effect color changing
+uint32_t Wheel(byte WheelPos) {       
+  WheelPos = 255 - WheelPos;
+  if(WheelPos < 85) {
+    return batt1.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  }
+  if(WheelPos < 170) {
+    WheelPos -= 85;
+    return batt1.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  }
+  WheelPos -= 170;
+  return batt1.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
 }
 
 
@@ -290,8 +306,51 @@ void loop() {
   drawCentreString("t", 56, 1);
   matrix.show();
 
-  //set battery led strips to rainbow
-  battrainbow(10);
+  //set battery LED strips to rainbow - removed this in favour as rainbow effect
+  //below as this line "locks out" the code and prevents stopping/restarting the presentation
+
+  //battrainbow(10);
+
+
+  //Rainbow effect for battery strips
+  //setup variables
+  uint16_t i, j;
+  //loop through strip length
+  for(i=0; i< batt1.numPixels(); i++) { 
+    //set color using wheel function                                         
+    batt1.setPixelColor(i, Wheel(((i * 256 / batt1.numPixels()) + j) & 255));
+    batt2.setPixelColor(i, Wheel(((i * 256 / batt2.numPixels()) + j) & 255));
+  }
+  //show effect
+  batt1.show();
+  batt2.show();
+  delay(20);
+
+  //Turn everything off, this way the presentation can be looped
+  //clear the display
+  wait_for_advance();
+  matrix.fillScreen(0);
+  //clear the 4039 buttons
+  digitalWrite(fourButton, LOW);
+  digitalWrite(zeroButton, LOW);
+  digitalWrite(threeButton, LOW);
+  digitalWrite(nineButton, LOW); 
+  //clear the nodes 
+  node4.fill(blank);
+  node0.fill(blank);  
+  node3.fill(blank);  
+  node9.fill(blank);
+  //clear the strips    
+  batt1.fill(blank);
+  batt2.fill(blank);
+  //apply all the effects
+  matrix.show();
+  node4.show();
+  node0.show();
+  node3.show();
+  node9.show();
+  batt1.show();
+  batt2.show();
 
 }
 
